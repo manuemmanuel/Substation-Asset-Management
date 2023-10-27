@@ -14,7 +14,7 @@ The chatbot should have features for semantic processing of queries. It should a
    cd Substation-Asset-Management
 3. **Install Libraries and dependencies:**
    ```bash
-   pip install spacy
+   pip3 install spacy
 
    python -m spacy download en_core_web_sm
 4. **Run the Program:**
