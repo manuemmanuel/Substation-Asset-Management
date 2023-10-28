@@ -1,19 +1,34 @@
-import streamlit as st
-from data import patterns, responses
+from transformers import GPT2LMHeadModel, GPT2Tokenizer
+import torch
 
-def chatbot_response(input_text):
-    for category, patterns_list in patterns.items():
-        for pattern in patterns_list:
-            if pattern in input_text.lower():
-                return responses[category]
-    return "I'm sorry, I don't understand that. Please ask about test procedures, acceptable limits, issue resolution, safety guidelines, or equipment recommendations."
+# Load pre-trained model and tokenizer
+model_name = "EleutherAI/gpt-neo-2.7B"
+tokenizer = GPT2Tokenizer.from_pretrained(model_name)
+model = GPT2LMHeadModel.from_pretrained(model_name)
 
-st.title("Substation Asset Maintenance Chatbot")
-user_input = st.text_input("User: ")
+# Set the model to evaluation mode
+model.eval()
 
-if user_input:
-    response = chatbot_response(user_input)
-    st.text("Response: " + response)
+# Main interaction loop
+print("Chatbot: Hello! I am a Substation Asset Maintenance bot. How can I assist you today? Type 'quit' to exit.")
+while True:
+    user_input = input("User: ")
 
-if st.button("Quit"):
-    st.text("Response: Goodbye! Have a great day!")
+    # Check if user wants to quit
+    if user_input.lower() == "quit":
+        print("Chatbot: Goodbye! Have a great day!")
+        break
+
+    # Modify user input to include the specific prompt
+    user_input_with_prompt = f"Pretend as if you are a Substation Asset Maintenance bot and {user_input}"
+
+    # Tokenize the modified user input
+    input_ids = tokenizer.encode(user_input_with_prompt, return_tensors="pt")
+
+    # Generate a response from the model
+    with torch.no_grad():
+        output = model.generate(input_ids, max_length=100)[0]
+
+    # Decode and print the model's response
+    chatbot_response = tokenizer.decode(output, skip_special_tokens=True)
+    print("Chatbot:", chatbot_response)
